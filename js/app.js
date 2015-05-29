@@ -21,6 +21,7 @@ var initDir = function(root) {
 };
 
 initDir(dir);
+
 // Input: Object
 // Output: "/dev/sda"
 var listDir = function(d) {
@@ -112,24 +113,30 @@ var steps = [
 	{
 		"id": 0,
 		"heading": "Welcome to Forensoid, the Android forensics lab!",
-		"body": "Let's get started.",
+		"body": "Let's get started.\n"
+			+"Click **Next Step**",
 		"aside": "",
 		"complete": true,
 	},
 	{
 		"id": 1,
 		"heading": "Step 1",
-		"body": "Input the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
-		"aside": "",
+		"body": "**Directions**\n"
+			+"Input the command `sudo -s`.\n"
+			+"Login in as `admin` with the password `password`.",
+		"aside": "**Commands**\n"
+			+"`sudo -s` - Gain root permissions",
 		"complete": false,
 	},
 	{
 		"id": 2,
 		"heading": "Step 2",
-		"body": "\
-			Type `ls` to display the current directory listing.\n\
-			Change directories into `dev/sda`",
-		"aside": "",
+		"body": "**Directions**\n"
+			+"Type `ls` to display the current directory listing.\n"
+			+"Change directories into `dev/sda`",
+		"aside": "**Commands**\n"
+			+"`ls` - List segments or list files\n"
+			+"`cd` - Change directory",
 		"complete": false,
 	},
 ];
@@ -193,14 +200,17 @@ var Step = React.createClass({
 		}
 	},
 	render: function() {
+		var rawHeading = marked("###"+this.state.heading);
+			var rawBody = marked(this.state.body);
+				var rawAside = marked(this.state.aside);
 		return (
 			<section className="hero">
-				<h3>{this.state.heading}</h3>
+				<span dangerouslySetInnerHTML={{__html: rawHeading}} />
 				<article>
-					<p>{this.state.body}</p>
+					<span dangerouslySetInnerHTML={{__html: rawBody}} />
 				</article>
 				<aside>
-					<p>{this.state.aside}</p>
+					<span dangerouslySetInnerHTML={{__html: rawAside}} />
 				</aside>
 				<Terminal />
 				<footer>
