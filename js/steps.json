@@ -1,18 +1,1 @@
-{
-	0: {
-		id: 0,
-		heading: "Welcome to Forensoid, the Android forensics lab!",
-		body: "Let's get started.",
-		aside: "",
-		complete: true,
-		commands: {},
-	},
-	1: {
-		heading: "Step 1",
-		body: "Input the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
-		aside: "",
-		complete: false,
-		commands: {}
-	},
 
-}
