@@ -66,19 +66,19 @@ var steps = [
 	},
 	{
 		"step": 1,
-		"heading": "**Step 1** *Get root permissions*",
+		"heading": "Step 1\n>Get root permissions",
 		"body": "**Directions**\nInput the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
 		"aside": "**Commands**\n`sudo -s` | Gain root permissions",
 	},
 	{
 		"step": 2,
-		"heading": "**Step 2**",
+		"heading": "Step 2",
 		"body": "**Directions**\nType `ls` to display the current directory listing.\nChange directories into `dev/sda`",
 		"aside": "**Commands**\n`ls` | List segments or list files\n`cd` | Change directory",
 	},
 	{
 		"step": 3,
-		"heading": "**Step 3**",
+		"heading": "Step 3",
 		"body": "**Directions**\nNow we're going to begin copying files from the device to another directory.",
 		"aside": "**Commands**",
 	},
