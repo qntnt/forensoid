@@ -5,4 +5,6 @@ body {
 code {
 	background-color: black;
 	color: white;
+	border-radius: 2px;
+	border: 1px solid: #333;
 }
