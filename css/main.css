@@ -5,6 +5,8 @@ body {
 code {
 	background-color: black;
 	color: white;
-	border-radius: 2px;
+	border-radius: 5px;
 	border: 1px solid: #333;
+	padding-left: 2px;
+	padding-right: 2px;
 }
