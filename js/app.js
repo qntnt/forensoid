@@ -78,7 +78,7 @@ var steps = [
 	},
 	{
 		"step": 3,
-		"heading": "Step 3",
+		"heading": "Step 3 <small>Copying files</small>",
 		"body": "**Directions**\nNow we're going to begin copying files from the device to another directory.",
 		"aside": "**Commands**",
 	},
