@@ -72,7 +72,7 @@ var steps = [
 	},
 	{
 		"step": 2,
-		"heading": "Step 2 <small>Change directories</small>",
+		"heading": "Step 2 <small>Change=ing directories</small>",
 		"body": "**Directions**\nType `ls` to display the current directory listing.\nChange directories into `dev/sda`",
 		"aside": "**Commands**\n`ls` | List segments or list files\n`cd` | Change directory",
 	},
