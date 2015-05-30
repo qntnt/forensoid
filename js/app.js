@@ -66,7 +66,7 @@ var steps = [
 	},
 	{
 		"step": 1,
-		"heading": "Step 1\n>Get root permissions",
+		"heading": "Step 1 <small>Get root permissions</small>",
 		"body": "**Directions**\nInput the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
 		"aside": "**Commands**\n`sudo -s` | Gain root permissions",
 	},
