@@ -2,3 +2,7 @@ body {
 	background: #eeeeee;
 	white-space: pre-wrap;
 }
+code {
+	background-color: black;
+	color: white;
+}
