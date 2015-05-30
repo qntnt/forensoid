@@ -1,4 +1,4 @@
-var term_step = 0;
+var term_step = 1;
 
 var dir = {
 	"dev": {
@@ -31,10 +31,10 @@ var listDir = function(d) {
 		d = d.parent;
 	}
 	if (list) {
-		list = " /"+list;
+		list = "/"+list;
 	}
 	return list;
-}
+};
 
 // Input: "dev/sda"
 // Output: ['dev', 'sda']
@@ -53,156 +53,187 @@ var parseDir = function(d){
 	}
 	list.push(td);
 	return list;
-}
-
-var commands = {
-	ls: function() {
-		var list = Object.keys(dir);
-		var pIndex = list.indexOf("parent");
-		var nIndex = list.indexOf("name");
-		if(pIndex != -1) {
-			list.splice(pIndex, 1);
-		}
-		if(nIndex != -1) {
-			list.splice(nIndex, 1);
-		}
-		list = list.join('\t', list);
-		this.echo(list);
-	},
-	cd: function(next_dir) {
-		var list = parseDir(next_dir);
-		var td = dir;
-
-		for(var i=0; i<list.length; i++) {
-			if (list[i] == ".." && dir.parent) {
-				console.log("Changing directories to parent.");
-				dir = dir.parent;
-			} else if (dir[list[i]]){
-				dir = dir[list[i]];
-			}
-		}
-
-		this.set_prompt("root"+listDir(dir)+"> ");
-	},
-	exit: function() {
-		this.pop()
-	},
 };
 
-var init_commands = {
-	sudo: function(a1) {
-		if (this.name == "root") {
-			this.echo("Already root.");
-		}
-		if (a1 == '-s') {
-			this.login(function(u, p, callback) {
-				if(u == "q" || p == "q"){
-					callback('FAILED');
-				}
-				if(u == "admin" && p == "password") {
-					term_step += 1;
-					callback('SECRET KEY');
-					this.push(commands, {height: 300, name: 'root', prompt: 'root> '});
-				}
-			})
-		}
-	}
-};
+
 
 var steps = [
 	{
-		"id": 0,
+		"step": 0,
 		"heading": "Welcome to Forensoid, the Android forensics lab!",
-		"body": "Let's get started.\n"
-			+"Click **Next Step**",
+		"body": "Let's get started.\nClick **Next Step**",
 		"aside": "",
-		"complete": true,
 	},
 	{
-		"id": 1,
+		"step": 1,
 		"heading": "Step 1",
-		"body": "**Directions**\n"
-			+"Input the command `sudo -s`.\n"
-			+"Login in as `admin` with the password `password`.",
-		"aside": "**Commands**\n"
-			+"`sudo -s` - Gain root permissions",
-		"complete": false,
+		"body": "**Directions**\nInput the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
+		"aside": "**Commands**\n`sudo -s` - Gain root permissions",
 	},
 	{
-		"id": 2,
+		"step": 2,
 		"heading": "Step 2",
-		"body": "**Directions**\n"
-			+"Type `ls` to display the current directory listing.\n"
-			+"Change directories into `dev/sda`",
-		"aside": "**Commands**\n"
-			+"`ls` - List segments or list files\n"
-			+"`cd` - Change directory",
-		"complete": false,
+		"body": "**Directions**\nType `ls` to display the current directory listing.\nChange directories into `dev/sda`",
+		"aside": "**Commands**\n`ls` - List segments or list files\n`cd` - Change directory",
+	},
+	{
+		"step": 3,
+		"heading": "Step 3",
+		"body": "**Directions**\nNow we're going to begin copying files from the device to another directory.",
+		"aside": "**Commands**",
 	},
 ];
-
-var Title = React.createClass({
-	render: function() {
-		return (
-			<h1>Forensoid <small>Android forensics lab</small></h1>
-		);
-	}
-});
 
 var Btn = React.createClass({
 	handleClick: function(event) {
 		this.props.nextStep();
 	},
 	render: function() {
-		return (
-			<button onClick={this.handleClick}>{this.props.value}</button>
-		);
+		if (this.props.progress < this.props.step || this.props.step < 0) {
+			return (
+				<button onClick="{this.handleClick}" disabled >{this.props.value}</button>
+			);
+		}
+		else {
+			return (
+				<button onClick={this.handleClick} >{this.props.value}</button>
+			);
+		}
 	}
 });
 
 var Terminal = React.createClass({
+	getInitialState: function() {
+		var commands = {
+			ls: function() {
+				var list = Object.keys(dir);
+				var pIndex = list.indexOf("parent");
+				var nIndex = list.indexOf("name");
+				if(pIndex != -1) {
+					list.splice(pIndex, 1);
+				}
+				if(nIndex != -1) {
+					list.splice(nIndex, 1);
+				}
+				list = list.join('\t', list);
+				this.echo(list);
+			},
+			cd: function(next_dir) {
+				var list = parseDir(next_dir);
+				var td = dir;
+
+				for(var i=0; i<list.length; i++) {
+					if (list[i] == ".." && dir.parent) {
+						console.log("Changing directories to parent.");
+						dir = dir.parent;
+					} else if (dir[list[i]]){
+						dir = dir[list[i]];
+					}
+				}
+
+				if(this.name() == "root") {
+					this.set_prompt("root "+listDir(dir)+"> ");
+				}
+				else {
+					this.set_prompt(listDir(dir)+"> ");
+				}
+
+				if (term_step === 2)
+					if(listDir(dir) == "/dev/sda/"){
+						this.echo("TUTORIAL: Click [Next Step].");
+						term_step = 3;
+						this.set_command("");
+					}
+			},
+			exit: function() {
+				this.pop();
+			},
+		};
+
+		var init_commands = {
+			sudo: function(a1) {
+				if (this.name == "root") {
+					this.echo("Already root.");
+				}
+				if (a1 == '-s') {
+					this.login(function(u, p, callback) {
+						if(u == "q" || p == "q"){
+							callback('FAILED');
+						}
+						if(u == "admin" && p == "password") {
+							callback('SECRET KEY');
+							this.push(commands, {name:"root", prompt: "root > "});
+							this.echo("TUTORIAL: Login successful! Click [Next Step].");
+
+							// Update step
+							if (term_step === 1)
+								term_step = 2;
+							this.set_command("");
+						}
+						else {
+							callback(null);
+						}
+					});
+				}
+			}
+		};
+
+		return {commands: $.extend(init_commands, commands)};
+	},
+	componentDidMount: function() {
+			$('#term').terminal( this.state.commands, {
+				greetings: "",
+				height: 300,
+				prompt: "> ",
+				name: "base",
+				onCommandChange: this.props.onSubmit,
+			});
+	},
 	render: function() {
 		return (
-		<section id="term" className="terminal"></section>
+		<section id="term" className="terminal" onSubmit={this.props.onSubmit}></section>
 		);
 	}
 });
 
-var Step = React.createClass({
+var Lab = React.createClass({
 	getInitialState: function() {
-		return steps[0];
-	},
-	componentDidMount: function() {
-		console.log("Mounting");
-
-		$('#term').terminal( init_commands, {
-			greetings: "",
-			height: 150,
-			prompt: "> ",
-			name: "base"
-		});
+		return {
+			"progress": 1,
+			"step": 0,
+			"heading": "Welcome to Forensoid, the Android forensics lab!",
+			"body": "Let's get started.\nClick **Next Step**",
+			"aside": "",
+			"complete": true,
+		};
 	},
 	handleNext: function(event) {
-		if (this.state.id < steps.length-1) {
+		if (this.state.step < steps.length-1) {
 			console.log("Moving to next step.");
-			this.setState(steps[this.state.id + 1]);
-		} else {
+			this.setState(steps[this.state.step + 1]);
+		}
+		else {
 			console.log("At last step.")
 		}
 	},
 	handlePrev: function(event) {
-		if(this.state.id > 0) {
+		if(this.state.step > 0) {
 			console.log("Moving to previous step.");
-			this.setState(steps[this.state.id - 1]);
+			this.setState(steps[this.state.step - 1]);
 		}
 		else {
 			console.log("Already at first step");
 		}
 	},
+	handleSubmit: function(event) {
+		if(this.state.progress <= term_step) {
+			this.setState({progress: term_step});
+		}
+	},
 	render: function() {
 		var rawHeading = marked("###"+this.state.heading);
-			var rawBody = marked(this.state.body);
-				var rawAside = marked(this.state.aside);
+		var rawBody = marked(this.state.body);
+		var rawAside = marked(this.state.aside);
 		return (
 			<section className="hero">
 				<span dangerouslySetInnerHTML={{__html: rawHeading}} />
@@ -212,19 +243,20 @@ var Step = React.createClass({
 				<aside>
 					<span dangerouslySetInnerHTML={{__html: rawAside}} />
 				</aside>
-				<Terminal />
+				<Terminal onSubmit={this.handleSubmit}/>
 				<footer>
-					<Btn value="Previous Step" nextStep={this.handlePrev} />
-					<Btn value="Next Step" nextStep={this.handleNext} />
+					<Btn value="Previous Step" nextStep={this.handlePrev} step={this.state.step-1} progress={this.state.progress} />
+					<Btn value="Next Step" nextStep={this.handleNext} step={this.state.step+1} progress={this.state.progress} />
 				</footer>
 			</section>
 		);
 	}
 });
+
 React.render(
 	<main>
-		<Title />
-		<Step />
+		<h1>Forensoid <small>Android forensics lab</small></h1>
+		<Lab />
 	</main>,
 	document.getElementById('content')
 );
