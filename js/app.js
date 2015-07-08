@@ -209,7 +209,7 @@ var Terminal = React.createClass({
 
 							// Update step
 							if (term_step === 1)
-								term_step = 2;
+								term_step = 3;
 							this.set_command("");
 						}
 						else {
