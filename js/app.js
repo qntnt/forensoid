@@ -183,7 +183,7 @@ var Terminal = React.createClass({
 				if (term_step === 3)
 					if(listDir(dir) == "/dev/sda/"){
 						this.echo("TUTORIAL: Click [Next Step].");
-						term_step = 4;
+						term_step = 10;
 						this.set_command("");
 					}
 			},
