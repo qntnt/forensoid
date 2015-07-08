@@ -147,6 +147,21 @@ var Btn = React.createClass({
 var Terminal = React.createClass({
 	getInitialState: function() {
 		var commands = {
+			dcfldd: function () {
+				//TODO
+			},
+			md5sum: function () {
+				//TODO
+
+			},
+			dd: function () {
+				//TODO
+
+			},
+			mkdir: function () {
+				//TODO
+
+			},
 			ls: function() {
 				var list = Object.keys(dir);
 				var pIndex = list.indexOf("parent");
