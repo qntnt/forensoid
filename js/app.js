@@ -162,6 +162,9 @@ var Terminal = React.createClass({
 				//TODO
 
 			},
+			fdisk: function (opt) {
+
+			},
 			ls: function() {
 				var list = Object.keys(dir);
 				var pIndex = list.indexOf("parent");
