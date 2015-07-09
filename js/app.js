@@ -197,9 +197,6 @@ var Terminal = React.createClass({
 					this.echo('/dev/sda\t/dev/sdb');
 				}
 			},
-			fdisk: function () {
-				this.echo("TUTORIAL: Remember to add the option '-l'");
-			},
 			ls: function() {
 				var list = Object.keys(dir);
 				var pIndex = list.indexOf("parent");
