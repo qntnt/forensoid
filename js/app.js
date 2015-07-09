@@ -87,43 +87,49 @@ var steps = [
 	},
 	{
 		"step": 4,
-		"heading": "Step 4 <small>Copying files</small>",
-		"body": "**Directions**\nNow we're going to begin copying files from the device to another directory.",
-		"aside": "**Commands**",
-	},
-	{
-		"step": 5,
-		"heading": "Step 5 <small>Zero the Hard Drive</small>",
+		"heading": "Step 4 <small>Zero the Hard Drive</small>",
 		"body": "**Directions**\nWe're going to zero out the hard drive that we will copy into.\nUse `dd if=/dev/zero of=/dev/sdb`",
 		"aside": "**Commands**",
 	},
 	{
+		"step": 5,
+		"heading": "Step 5 <small>Format the Drive</small>",
+		"body": "**Directions**\nUse the `mkfs-t ext3 /dev/sdb` command to format the `/dev/sdb` drive.",
+		"aside": "**Commands**`mkfs-t` | Format drive",
+	},
+	{
 		"step": 6,
-		"heading": "Step 6 <small>Organize the Directories</small>",
+		"heading": "Step 5 <small>Mount the Drive</small>",
+		"body": "**Directions**\nInput the `mount /dev/sdb /media/sdb` command to mount the target drive.",
+		"aside": "**Commands**",
+	},
+	{
+		"step": 7,
+		"heading": "Step 7 <small>Organize the Directories</small>",
 		"body": "**Directions**\nLet's make some directories to store the evidence.\nUse the commands `mkdir /media/sdb/case_1` and `mkdir /media/sdb/case_1/evidence_1` to make the new directories.",
 		"aside": "**Commands**`mkdir` | Make directory",
 	},
 	{
-		"step": 7,
-		"heading": "Step 7 <small>Create a Hash</small>",
+		"step": 8,
+		"heading": "Step 8 <small>Create a Hash</small>",
 		"body": "**Directions**\nWe will create a hash of the drive to ensure that data copies correctly from the evidence drive to our target drive.\nInput the command `md5sum /dev/sda |tee /media/sdb/case_1/evidence_1/pre-imagesource.md5.txt` to make an MD5 hash of the `/dev/sda` drive.\nThis hash will be located at `/media/sdb/case_1/evidence_1/pre-imagesource.md5.txt`.",
 		"aside": "**Commands**`md5sum` | Create an MD5 hash",
 	},
 	{
-		"step": 8,
-		"heading": "Step 8 <small>Copy the Image</small>",
+		"step": 9,
+		"heading": "Step 9 <small>Copy the Image</small>",
 		"body": "**Directions**\nNow we're able to copy the image of the drive and be sure that it succeeds without error. Create the image of the drive with the command `dcfldd if=/dev/sda of=/media/sdb/case_1/HDimage_1.dd conv=noerror,sync hashwindow=0 hashlog=/media/sdb/case_1/evidence_1/post-imagesource.md5.txt`.\n**It's long, so be sure you don't have any typos.**",
 		"aside": "**Commands**",
 	},
 	{
-		"step": 9,
-		"heading": "Step 9 <small>Check the Integrity of the Image</small>",
+		"step": 10,
+		"heading": "Step 10 <small>Check the Integrity of the Image</small>",
 		"body": "**Directions**\nLet's check the MD5 hash of the image against the hash of the original.\n# TODO",
 		"aside": "**Commands**",
 	},
 	{
-		"step": 10,
-		"heading": "Step 10 <small>Open Our Forensics Software</small>",
+		"step": 11,
+		"heading": "Step 11 <small>Open Our Forensics Software</small>",
 		"body": "**Directions**\n# TODO",
 		"aside": "**Commands**",
 	},
@@ -164,9 +170,13 @@ var Terminal = React.createClass({
 			dd: function (inif, outof) {
 				//TODO
 				if (term_step === 5) {
-					term_step = 6;
-					this.echo('TUTORIAL: Click [NEXT STEP]')
+					term_step = 10;
+					this.echo('TUTORIAL: Click [NEXT STEP]');
+					this.set_command("");
 				}
+			},
+			"mkfs-t": function (ext3, target) {
+
 			},
 			mkdir: function (str) {
 				var root = dir;
