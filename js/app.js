@@ -147,18 +147,18 @@ var Btn = React.createClass({
 var Terminal = React.createClass({
 	getInitialState: function() {
 		var commands = {
-			dcfldd: function () {
+			dcfldd: function (if, of, conv, hashwindow, hashlog) {
 				//TODO
 			},
-			md5sum: function () {
-				//TODO
-
-			},
-			dd: function () {
+			md5sum: function (source, tee, target) {
 				//TODO
 
 			},
-			mkdir: function () {
+			dd: function (if, of) {
+				//TODO
+
+			},
+			mkdir: function (string) {
 				//TODO
 
 			},
