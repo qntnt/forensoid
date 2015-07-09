@@ -163,10 +163,12 @@ var Terminal = React.createClass({
 			},
 			dd: function (inif, outof) {
 				//TODO
-
+				if (term_step === 5) {
+					term_step = 6;
+					this.echo('TUTORIAL: Click [NEXT STEP]')
+				}
 			},
 			mkdir: function (str) {
-				//TODO
 				var root = dir;
 				var list = parseDir(str);
 
@@ -178,11 +180,15 @@ var Terminal = React.createClass({
 
 					dir = dir[list[i]];
 				}
-
 				dir = root;
 			},
 			fdisk: function (opt) {
-				this.echo('/dev/sda\t/dev/sdb');
+				if (opt === '-l') {
+					this.echo('/dev/sda\t/dev/sdb');
+				}
+			},
+			fdisk: function () {
+				this.echo("TUTORIAL: Remember to add the option '-l'");
 			},
 			ls: function() {
 				var list = Object.keys(dir);
@@ -219,8 +225,8 @@ var Terminal = React.createClass({
 
 				if (term_step === 3)
 					if(listDir(dir) == "/dev/sda/"){
-						this.echo("TUTORIAL: Click [Next Step].");
-						term_step = 10;
+						this.echo("TUTORIAL: Click [NEXT STEP].");
+						term_step = 5;
 						this.set_command("");
 					}
 			},
@@ -242,7 +248,7 @@ var Terminal = React.createClass({
 						if(u == "admin" && p == "password") {
 							callback('SECRET KEY');
 							this.push(commands, {name:"root", prompt: "root > "});
-							this.echo("TUTORIAL: Login successful! Click [Next Step].");
+							this.echo("TUTORIAL: Login successful! Click [NEXT STEP].");
 
 							// Update step
 							if (term_step === 1)
