@@ -95,7 +95,7 @@ var steps = [
 		"step": 5,
 		"heading": "Step 5 <small>Format the Drive</small>",
 		"body": "**Directions**\nUse the `mkfs-t ext3 /dev/sdb` command to format the `/dev/sdb` drive.",
-		"aside": "**Commands**`mkfs-t` | Format drive",
+		"aside": "**Commands**\n`mkfs-t` | Format drive",
 	},
 	{
 		"step": 6,
@@ -107,13 +107,13 @@ var steps = [
 		"step": 7,
 		"heading": "Step 7 <small>Organize the Directories</small>",
 		"body": "**Directions**\nLet's make some directories to store the evidence.\nUse the commands `mkdir /media/sdb/case_1` and `mkdir /media/sdb/case_1/evidence_1` to make the new directories.",
-		"aside": "**Commands**`mkdir` | Make directory",
+		"aside": "**Commands**\n`mkdir` | Make directory",
 	},
 	{
 		"step": 8,
 		"heading": "Step 8 <small>Create a Hash</small>",
 		"body": "**Directions**\nWe will create a hash of the drive to ensure that data copies correctly from the evidence drive to our target drive.\nInput the command `md5sum /dev/sda |tee /media/sdb/case_1/evidence_1/pre-imagesource.md5.txt` to make an MD5 hash of the `/dev/sda` drive.\nThis hash will be located at `/media/sdb/case_1/evidence_1/pre-imagesource.md5.txt`.",
-		"aside": "**Commands**`md5sum` | Create an MD5 hash",
+		"aside": "**Commands**\n`md5sum` | Create an MD5 hash",
 	},
 	{
 		"step": 9,
