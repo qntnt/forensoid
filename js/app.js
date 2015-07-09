@@ -5,8 +5,11 @@ var dir = {
 		"sda": {},
 		"sdb": {},
 	},
+	"media": {},
 	"home": {},
 };
+
+var rootDir = dir;
 
 var initDir = function(root) {
 	if (!root) return;
@@ -152,7 +155,11 @@ var Terminal = React.createClass({
 			},
 			md5sum: function (source, tee, target) {
 				//TODO
+				if (target !== '/media/sdb/case_1/evidence_1/pre-imagesource.md5.txt') {
+					this.echo('You input an invalid target. Check your command for typos.');
+				} else {
 
+				}
 			},
 			dd: function (inif, outof) {
 				//TODO
@@ -160,10 +167,22 @@ var Terminal = React.createClass({
 			},
 			mkdir: function (str) {
 				//TODO
+				var root = dir;
+				var list = parseDir(str);
 
+				for (var i=0; i<list.length; i++) {
+					dir[list[i]] = {
+						name: [list[i]],
+						parent: dir
+					};
+
+					dir = dir[list[i]];
+				}
+
+				dir = root;
 			},
 			fdisk: function (opt) {
-
+				this.echo('/dev/sda\t/dev/sdb');
 			},
 			ls: function() {
 				var list = Object.keys(dir);
