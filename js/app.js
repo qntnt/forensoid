@@ -169,7 +169,7 @@ var Terminal = React.createClass({
 			},
 			dd: function (inif, outof) {
 				//TODO
-				if (term_step === 5) {
+				if (term_step === 4) {
 					term_step = 10;
 					this.echo('TUTORIAL: Click [NEXT STEP]');
 					this.set_command("");
