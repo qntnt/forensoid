@@ -236,7 +236,7 @@ var Terminal = React.createClass({
 				if (term_step === 3)
 					if(listDir(dir) == "/dev/sda/"){
 						this.echo("TUTORIAL: Click [NEXT STEP].");
-						term_step = 5;
+						term_step = 4;
 						this.set_command("");
 					}
 			},
