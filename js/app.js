@@ -1,13 +1,35 @@
 var term_step = 1;
 
-var dir = {
+var original_dir = {
 	"dev": {
 		"sda": {},
 		"sdb": {},
 	},
+	"opt": {
+		"AndroidSDK": {
+			"platform-tools": {}
+		}
+	},
 	"media": {},
 	"home": {},
 };
+
+var dir = original_dir;
+
+var adb = {
+	"dev": {
+		"mtdblock1": {
+			"data": {
+				"com.android.providers.telephony":{
+					"databases": {
+						"mmssms.db": {}
+					}
+				}
+			}
+		}
+	}
+};
+
 
 var rootDir = dir;
 
@@ -23,6 +45,7 @@ var initDir = function(root) {
 	}
 };
 
+initDir(adb);
 initDir(dir);
 
 // Input: Object
@@ -62,78 +85,64 @@ var parseDir = function(d){
 
 var steps = [
 	{
-		"step": 0,
 		"heading": "Welcome to Forensoid, the Android forensics lab!",
 		"body": "Let's get started.\nClick **Next Step**",
 		"aside": "",
 	},
 	{
-		"step": 1,
-		"heading": "Step 1 <small>Get root permissions</small>",
+		"heading": "Get root permissions",
 		"body": "**Directions**\nInput the command `sudo -s`.\nLogin in as `admin` with the password `password`.",
 		"aside": "**Commands**\n`sudo -s` | Gain root permissions",
 	},
 	{
-		"step": 2,
-		"heading": "Step 2 <small>Locate Hard Drives/small>",
+		"heading": "Locate Hard Drive",
 		"body": "**Directions**\nInput the command `fdisk -l`.",
 		"aside": "**Commands**\n`fdisk -l` | Locate drives",
 	},
 	{
-		"step": 3,
-		"heading": "Step 3 <small>Changing directories</small>",
-		"body": "**Directions**\nType `ls` to display the current directory listing.\nChange directories into `dev/sda`",
-		"aside": "**Commands**\n`ls` | List segments or list files\n`cd` | Change directory",
+		"heading": "Connect to the device via Android SDK",
+		"body": "**Directions**\n`cd /opt/AndroidSDK/platform-tools`\nThen type `adb shell`\n",
+		"aside": "**Why?**\n*The Android SDK allows the forensic investigator to connect to the suspect device and acquire an image for later analysis.*",
 	},
 	{
-		"step": 4,
-		"heading": "Step 4 <small>Zero the Hard Drive</small>",
-		"body": "**Directions**\nWe're going to zero out the hard drive that we will copy into.\nUse `dd if=/dev/zero of=/dev/sdb`",
-		"aside": "**Commands**",
+		"heading": "",
+		"body": "Use the `mount` command.\nlook for `/data` then `mount`.\n`/dev/mtdblock1",
+		"aside": "**Why?**\n*All user data on an Android device is located under the data partition. Using the mount command, we can see where that particular point is mounted on the system. In this instance, /data is located at /dev/mtdblock1. Android stores it’s text message database in a sqllite database located within the /data mount point. The SMS and MMS database is located under **/data/com.android.providers.telephony/databases/mmssms.db***"
 	},
 	{
-		"step": 5,
-		"heading": "Step 5 <small>Format the Drive</small>",
-		"body": "**Directions**\nUse the `mkfs-t ext3 /dev/sdb` command to format the `/dev/sdb` drive.",
-		"aside": "**Commands**\n`mkfs-t` | Format drive",
+		"heading": "",
+		"body": "`adb forward tcp:8888 tcp:8888`",
+		"aside": "**Why?**\n*While the forensic investigator can use a target drive as the destination for an image, they can also capture the required image using the adb tool and a network connection. We choose the latter in this case.*"
 	},
 	{
-		"step": 6,
-		"heading": "Step 5 <small>Mount the Drive</small>",
-		"body": "**Directions**\nInput the `mount /dev/sdb /media/sdb` command to mount the target drive.",
-		"aside": "**Commands**",
+		"heading": "",
+		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 **** > ~/droid_image.img` on the examiner's terminal, not adb.",
+		"aside": "**Why?**\n*Using the dd command and piping it to netcat (nc) allows us to capture a raw format image file from the /data mount point. Piping it to netcat allows us to stream that RAW file to the forensics examiners workstation for further storage and further analysis.*"
 	},
 	{
-		"step": 7,
-		"heading": "Step 7 <small>Organize the Directories</small>",
-		"body": "**Directions**\nLet's make some directories to store the evidence.\nUse the commands `mkdir /media/sdb/case_1` and `mkdir /media/sdb/case_1/evidence_1` to make the new directories.",
-		"aside": "**Commands**\n`mkdir` | Make directory",
+		"heading": "",
+		"body": "md5sum ~/droid_image.img > image_hash.txt",
+		"aside": "**Why?**\n*Using the md5 command allows the investigator to verify the integrity of the captured image file and prove that it has not been altered in any way.*"
 	},
 	{
-		"step": 8,
-		"heading": "Step 8 <small>Create a Hash</small>",
-		"body": "**Directions**\nWe will create a hash of the drive to ensure that data copies correctly from the evidence drive to our target drive.\nInput the command `md5sum /dev/sda |tee /media/sdb/case_1/evidence_1/pre-imagesource.md5.txt` to make an MD5 hash of the `/dev/sda` drive.\nThis hash will be located at `/media/sdb/case_1/evidence_1/pre-imagesource.md5.txt`.",
-		"aside": "**Commands**\n`md5sum` | Create an MD5 hash",
+		"heading": "",
+		"body": "Use Autopsy on Windows for analysis (windows autopsy does ext4 filesystems, linux version does not).\n\n* Create New Case\n* Import image file\n* Compare md5 hashes\n* Locate text file with text messaging data\n* Find the incriminating data if present.",
+		"aside": "**Why?**\n*The initial capture using dd and netcat was on a linux forensics workstation, however, the forensic software Autopsy on Linux does not support the ext4 file format that the suspects device was formatted as. Due to this, the image file must be analyzed on the Windows version of Autopsy. Using Autopsy allows us to mount the image and search for text messages within the specified timeframe to determine whether or not the suspect was texting at the time of the incident. Autopsy automatically extracts the messages from the sms/mms database for analysis.*"
 	},
 	{
-		"step": 9,
-		"heading": "Step 9 <small>Copy the Image</small>",
-		"body": "**Directions**\nNow we're able to copy the image of the drive and be sure that it succeeds without error. Create the image of the drive with the command `dcfldd if=/dev/sda of=/media/sdb/case_1/HDimage_1.dd conv=noerror,sync hashwindow=0 hashlog=/media/sdb/case_1/evidence_1/post-imagesource.md5.txt`.\n**It's long, so be sure you don't have any typos.**",
-		"aside": "**Commands**",
-	},
-	{
-		"step": 10,
-		"heading": "Step 10 <small>Check the Integrity of the Image</small>",
-		"body": "**Directions**\nLet's check the MD5 hash of the image against the hash of the original.\n# TODO",
-		"aside": "**Commands**",
-	},
-	{
-		"step": 11,
-		"heading": "Step 11 <small>Open Our Forensics Software</small>",
-		"body": "**Directions**\n# TODO",
-		"aside": "**Commands**",
-	},
+		"heading": "Is the subject guilty?",
+		"body": "",
+		"aside": ""
+	}
 ];
+
+steps = steps.map(function (step, index) {
+	if (!step.heading) step.heading = "";
+	if (!step.body) step.body = "";
+	if (!step.aside) step.aside = "";
+	step.step = index;
+	return step;
+});
 
 var Btn = React.createClass({
 	handleClick: function(event) {
@@ -156,23 +165,44 @@ var Btn = React.createClass({
 var Terminal = React.createClass({
 	getInitialState: function() {
 		var commands = {
+			goto: function () {
+				term_step = arguments[0];
+			},
+
 			dcfldd: function (inif, outof, conv, hashwindow, hashlog) {
 				//TODO
 			},
-			md5sum: function (source, tee, target) {
+			md5sum: function () {
 				//TODO
-				if (target !== '/media/sdb/case_1/evidence_1/pre-imagesource.md5.txt') {
+				for (var i=0; i>arguments.length; i++) {
+					this.echo(arguments[i]);
+				}
+
+				if (arguments[2] !== '~/image_hash.txt') {
 					this.echo('You input an invalid target. Check your command for typos.');
 				} else {
-
+					console.log('Nice, let\'s move on');
+					if (term_step === 7) term_step = 8;
+					this.set_command('');
 				}
 			},
-			dd: function (inif, outof) {
-				//TODO
-				if (term_step === 4) {
-					term_step = 10;
-					this.echo('TUTORIAL: Click [NEXT STEP]');
-					this.set_command("");
+			dd: function () {
+				if (term_step === 6) {
+					for (var i=0; i<arguments.length; i++) {this.echo(arguments[i])}
+					if (arguments[0] === 'if=/dev/mtdblock1' && arguments[1] === 'bs=512' && arguments[2] === 'conv=notrunc,noerror,sync' && arguments[3] === '|' && arguments[4] === 'nc' && arguments[5] === '-l' && arguments[6] === '-p' && arguments[7] === 8888) {
+						this.clear()
+						this.echo('Good job! Now we\'re on the examiner\'s terminal')
+					} else {
+						this.echo('Something was wrong...');
+					}
+				}
+			},
+			nc: function () {
+				if (term_step === 6) {
+					if (arguments[0] === '127.0.0.1' && arguments[1] === 8888 && arguments[2] === '>' && arguments[3] === '~/droid_image.img') {
+						term_step = 7;
+						this.set_command('');
+					}
 				}
 			},
 			"mkfs-t": function (ext3, target) {
@@ -210,6 +240,22 @@ var Terminal = React.createClass({
 				list = list.join('\t', list);
 				this.echo(list);
 			},
+			adb: function (shell) {
+				if (arguments.length == 1) {
+					if(listDir(dir) == "/opt/AndroidSDK/platform-tools/" && term_step === 3){
+						this.echo("TUTORIAL: Click [NEXT STEP].");
+						term_step = 4;
+						dir = adb;
+						this.set_prompt('root > ');
+						this.set_command("");
+					}
+				} if (arguments.length === 3) {
+					if (arguments[0] === 'forward' && arguments[1] === 'tcp:8888' && arguments[2] === 'tcp:8888' && term_step === 5) {
+						term_step = 6;
+						this.set_command('');
+					}
+				}
+			},
 			cd: function(next_dir) {
 				var list = parseDir(next_dir);
 				var td = dir;
@@ -230,12 +276,20 @@ var Terminal = React.createClass({
 					this.set_prompt(listDir(dir)+"> ");
 				}
 
-				if (term_step === 3)
-					if(listDir(dir) == "/dev/sda/"){
-						this.echo("TUTORIAL: Click [NEXT STEP].");
-						term_step = 4;
+				console.log(term_step);
+			},
+			mount: function () {
+				this.echo('Mounting...');
+				if (listDir(dir) === '') {
+					dir = adb;
+				} else if (listDir(dir) === '/dev/mtdblock1/data/') {
+					console.log('Awesome.');
+					if (term_step === 4) {
+						console.log("Changing step.");
+						term_step = 5;
 						this.set_command("");
 					}
+				}
 			},
 			exit: function() {
 				this.pop();
@@ -279,6 +333,7 @@ var Terminal = React.createClass({
 				prompt: "> ",
 				name: "base",
 				onCommandChange: this.props.onSubmit,
+				checkArity: false,
 			});
 	},
 	render: function() {
@@ -323,7 +378,7 @@ var Lab = React.createClass({
 		}
 	},
 	render: function() {
-		var rawHeading = marked("###"+this.state.heading);
+		var rawHeading = marked("### Step "+this.state.step+" <small>"+this.state.heading+"</small>");
 		var rawBody = marked(this.state.body);
 		var rawAside = marked(this.state.aside);
 		return (
