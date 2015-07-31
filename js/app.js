@@ -107,7 +107,7 @@ var steps = [
 	{
 		"heading": "",
 		"body": "Use the `mount` command.\nlook for `/data` then `mount`.\n`/dev/mtdblock1",
-		"aside": "**Why?**\n*All user data on an Android device is located under the data partition. Using the mount command, we can see where that particular point is mounted on the system. In this instance, /data is located at /dev/mtdblock1. Android stores it’s text message database in a sqllite database located within the /data mount point. The SMS and MMS database is located under **/data/com.android.providers.telephony/databases/mmssms.db***"
+		"aside": "**Why?**\n*All user data on an Android device is located under the data partition. Using the mount command, we can see where that particular point is mounted on the system. In this instance, /data is located at /dev/mtdblock1. Android stores it’s text message database in a SQLlite database located within the /data mount point. The SMS and MMS database is located under **/data/com.android.providers.telephony/databases/mmssms.db***"
 	},
 	{
 		"heading": "",
@@ -279,16 +279,10 @@ var Terminal = React.createClass({
 				console.log(term_step);
 			},
 			mount: function () {
-				this.echo('Mounting...');
-				if (listDir(dir) === '') {
-					dir = adb;
-				} else if (listDir(dir) === '/dev/mtdblock1/data/') {
-					console.log('Awesome.');
-					if (term_step === 4) {
-						console.log("Changing step.");
-						term_step = 5;
-						this.set_command("");
-					}
+				if (term_step === 4) {
+					console.log("Changing step.");
+					term_step = 5;
+					this.set_command("");
 				}
 			},
 			exit: function() {
