@@ -116,12 +116,12 @@ var steps = [
 	},
 	{
 		"heading": "",
-		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 **** > ~/droid_image.img` on the examiner's terminal, not adb.",
+		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 8888 > ~/droid_image.img` on the examiner's terminal, not adb.",
 		"aside": "**Why?**\n*Using the dd command and piping it to netcat (nc) allows us to capture a raw format image file from the /data mount point. Piping it to netcat allows us to stream that RAW file to the forensics examiners workstation for further storage and further analysis.*"
 	},
 	{
 		"heading": "",
-		"body": "md5sum ~/droid_image.img > image_hash.txt",
+		"body": "md5sum ~/droid_image.img > ~/image_hash.txt",
 		"aside": "**Why?**\n*Using the md5 command allows the investigator to verify the integrity of the captured image file and prove that it has not been altered in any way.*"
 	},
 	{
