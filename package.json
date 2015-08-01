@@ -1,0 +1,19 @@
+{
+  "name": "forensoid",
+  "version": "1.0.0",
+  "description": "> The online Android forensics lab",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quentunahelper/forensoid.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quentunahelper/forensoid/issues"
+  },
+  "homepage": "https://github.com/quentunahelper/forensoid#readme"
+}

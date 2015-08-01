@@ -86,7 +86,7 @@ var parseDir = function(d){
 var steps = [
 	{
 		"heading": "Welcome to Forensoid, the Android forensics lab!",
-		"body": "Let's get started.\nClick **Next Step**",
+		"body": "**Don't click images directly to view them, or you will lose your place in the lab. Instead, right click and open it in a new tab.**\nLet's get started.\nClick **Next Step**",
 		"aside": "",
 	},
 	{
@@ -106,7 +106,7 @@ var steps = [
 	},
 	{
 		"heading": "",
-		"body": "Use the `mount` command.\nlook for `/data` then `mount`.\n`/dev/mtdblock1",
+		"body": "Use the `mount` command.\nlook for `/data`.",
 		"aside": "**Why?**\n*All user data on an Android device is located under the data partition. Using the mount command, we can see where that particular point is mounted on the system. In this instance, /data is located at /dev/mtdblock1. Android stores it’s text message database in a SQLlite database located within the /data mount point. The SMS and MMS database is located under **/data/com.android.providers.telephony/databases/mmssms.db***"
 	},
 	{
@@ -116,18 +116,17 @@ var steps = [
 	},
 	{
 		"heading": "",
-		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 8888 > ~/droid_image.img` on the examiner's terminal, not adb.",
+		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 8888 > droid_image.img` on the examiner's terminal, not adb.",
 		"aside": "**Why?**\n*Using the dd command and piping it to netcat (nc) allows us to capture a raw format image file from the /data mount point. Piping it to netcat allows us to stream that RAW file to the forensics examiners workstation for further storage and further analysis.*"
 	},
 	{
 		"heading": "",
-		"body": "md5sum ~/droid_image.img > ~/image_hash.txt",
+		"body": "`md5sum droid_image.img > image_hash.txt`\nThen type `cat image_hash.txt` to view the hash.",
 		"aside": "**Why?**\n*Using the md5 command allows the investigator to verify the integrity of the captured image file and prove that it has not been altered in any way.*"
 	},
 	{
 		"heading": "",
-		"body": "Use Autopsy on Windows for analysis (windows autopsy does ext4 filesystems, linux version does not).\n\n* Create New Case\n* Import image file\n* Compare md5 hashes\n* Locate text file with text messaging data\n* Find the incriminating data if present.",
-		"aside": "**Why?**\n*The initial capture using dd and netcat was on a linux forensics workstation, however, the forensic software Autopsy on Linux does not support the ext4 file format that the suspects device was formatted as. Due to this, the image file must be analyzed on the Windows version of Autopsy. Using Autopsy allows us to mount the image and search for text messages within the specified timeframe to determine whether or not the suspect was texting at the time of the incident. Autopsy automatically extracts the messages from the sms/mms database for analysis.*"
+		"fullWidth": "Use Autopsy on Windows for analysis (windows autopsy does ext4 filesystems, linux version does not).\n\n* Create New Case\n![](/img/image4.png)\n* Import image file\n![](/img/image5.png)\n* Compare md5 hashes. *Right click and open the image in a new tab to see the small text*\n![](/img/image6.png)\n* Locate text file with text messaging data\n* Find the incriminating data if present.\n\n**Why?**\n*The initial capture using dd and netcat was on a linux forensics workstation, however, the forensic software Autopsy on Linux does not support the ext4 file format that the suspects device was formatted as. Due to this, the image file must be analyzed on the Windows version of Autopsy. Using Autopsy allows us to mount the image and search for text messages within the specified timeframe to determine whether or not the suspect was texting at the time of the incident. Autopsy automatically extracts the messages from the sms/mms database for analysis.*\n\n## So is he guilty?\nBased on the text messages, is the person guilty of texting while driving?\nType `1` for yes, and `2` for no."
 	},
 	{
 		"heading": "Is the subject guilty?",
@@ -140,6 +139,7 @@ steps = steps.map(function (step, index) {
 	if (!step.heading) step.heading = "";
 	if (!step.body) step.body = "";
 	if (!step.aside) step.aside = "";
+	if (!step.fullWidth) step.fullWidth = "";
 	step.step = index;
 	return step;
 });
@@ -165,6 +165,17 @@ var Btn = React.createClass({
 var Terminal = React.createClass({
 	getInitialState: function() {
 		var commands = {
+			"1": function () {
+				if (term_step === 8) {
+					this.echo('Congratulations! You are right. Thanks for following along with this lab.');
+				}
+			},
+			"2": function () {
+				if (term_step === 8) {
+					this.echo('Are you sure? Read the messages again.');
+				}
+			},
+
 			goto: function () {
 				term_step = arguments[0];
 			},
@@ -174,17 +185,9 @@ var Terminal = React.createClass({
 			},
 			md5sum: function () {
 				//TODO
-				for (var i=0; i>arguments.length; i++) {
-					this.echo(arguments[i]);
-				}
-
-				if (arguments[2] !== '~/image_hash.txt') {
-					this.echo('You input an invalid target. Check your command for typos.');
-				} else {
-					console.log('Nice, let\'s move on');
 					if (term_step === 7) term_step = 8;
 					this.set_command('');
-				}
+
 			},
 			dd: function () {
 				if (term_step === 6) {
@@ -197,9 +200,14 @@ var Terminal = React.createClass({
 					}
 				}
 			},
+			cat: function () {
+				if (arguments[0] === 'image_hash.txt') {
+					this.echo('55ce338f0050c93695c8b2e4d45acfb0');
+				}
+			},
 			nc: function () {
 				if (term_step === 6) {
-					if (arguments[0] === '127.0.0.1' && arguments[1] === 8888 && arguments[2] === '>' && arguments[3] === '~/droid_image.img') {
+					if (arguments[0] === '127.0.0.1' && arguments[1] === 8888 && arguments[2] === '>' && arguments[3] === 'droid_image.img') {
 						term_step = 7;
 						this.set_command('');
 					}
@@ -282,6 +290,7 @@ var Terminal = React.createClass({
 				if (term_step === 4) {
 					console.log("Changing step.");
 					term_step = 5;
+					this.echo("")
 					this.set_command("");
 				}
 			},
@@ -343,10 +352,14 @@ var Lab = React.createClass({
 			"progress": 1,
 			"step": 0,
 			"heading": "Welcome to Forensoid, the Android forensics lab!",
+			"fullWidth": "",
 			"body": "Let's get started.\nClick **Next Step**",
 			"aside": "",
 			"complete": true,
 		};
+	},
+	componentDidMount: function () {
+		$('img').attr('target', '_blank');
 	},
 	handleNext: function(event) {
 		if (this.state.step < steps.length-1) {
@@ -373,11 +386,14 @@ var Lab = React.createClass({
 	},
 	render: function() {
 		var rawHeading = marked("### Step "+this.state.step+" <small>"+this.state.heading+"</small>");
+		var rawFullWidth = marked(this.state.fullWidth);
 		var rawBody = marked(this.state.body);
 		var rawAside = marked(this.state.aside);
 		return (
+			<div>
 			<section className="hero">
 				<span dangerouslySetInnerHTML={{__html: rawHeading}} />
+				<span dangerouslySetInnerHTML={{__html: rawFullWidth}}></span>
 				<article>
 					<span dangerouslySetInnerHTML={{__html: rawBody}} />
 				</article>
@@ -390,6 +406,7 @@ var Lab = React.createClass({
 					<Btn value="Next Step" nextStep={this.handleNext} step={this.state.step+1} progress={this.state.progress} />
 				</footer>
 			</section>
+			</div>
 		);
 	}
 });
