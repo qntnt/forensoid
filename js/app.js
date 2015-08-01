@@ -290,7 +290,7 @@ var Terminal = React.createClass({
 				if (term_step === 4) {
 					console.log("Changing step.");
 					term_step = 5;
-					this.echo("")
+					this.echo("rootfs / rootfs ro,seclabel,relatime 0 0\ntmpfs /dev tmpfs rw,seclabe,nosuid,relatime,mode=755 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,relatime,mode=600 0 0\nproc /proc proc rw,relatime 0 0\nsysfs /sys sysfs rw,seclabel,relatime 0 0\nselinuxfs /sys/fs/selinux selinuxfs rw,relatime 0 0\ndebugfs /sys/kernel/debug debugfs rw,relatime 0 0\nnone /acct cgroup rw,relatime,cpuacct 0 0\nnone /sys/fs/cgroup tmpfs rw,seclabel,relatime,mode=750,gid=1000 0 0\ntmpfs /mnt/asec tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0\ntmpfs /mnt/obb tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0\nnone /dev/cpuctl cgroup rw,relatime,cpu 0 0\n/dev/block/mtdblock0 /system ext4 ro,seclabel,relatime,data=ordered 0 0\n/dev/block/mtdblock1 /data ext4 rw,seclabel,nosuid,nodev,noatime,nomblk_io_submit,data=ordered 0 0\n/dev/block/mtdblock2 /cache ext4 rw,seclabel,nosuid,nodev,noatime,data=ordered 0 0\n/dev/block/void/179:0 /mnt/media_rw/sdcard vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=midex,utf8,errors=remound-ro 0 0\n/dev/fuse /storage/sdcard fuse rw,nosuid,nodev,noexec,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0");
 					this.set_command("");
 				}
 			},
