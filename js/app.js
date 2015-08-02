@@ -68,7 +68,8 @@ var parseDir = function(d){
 	var list = [];
 	var td = "";
 	for(var i=0; i<d.length; i++) {
-		if(d[i] == '/') {
+		console.log(td);
+		if(d[i] === '/') {
 			if (td) {
 				list.push(td);
 				td = "";
@@ -95,37 +96,32 @@ var steps = [
 		"aside": "**Commands**\n`sudo -s` | Gain root permissions",
 	},
 	{
-		"heading": "Locate Hard Drive",
-		"body": "**Directions**\nInput the command `fdisk -l`.",
-		"aside": "**Commands**\n`fdisk -l` | Locate drives",
-	},
-	{
 		"heading": "Connect to the device via Android SDK",
 		"body": "**Directions**\n`cd /opt/AndroidSDK/platform-tools`\nThen type `adb shell`\n",
 		"aside": "**Why?**\n*The Android SDK allows the forensic investigator to connect to the suspect device and acquire an image for later analysis.*",
 	},
 	{
-		"heading": "",
+		"heading": "Determine partition to image",
 		"body": "Use the `mount` command.\nlook for `/data`.",
 		"aside": "**Why?**\n*All user data on an Android device is located under the data partition. Using the mount command, we can see where that particular point is mounted on the system. In this instance, /data is located at /dev/mtdblock1. Android stores it’s text message database in a SQLlite database located within the /data mount point. The SMS and MMS database is located under **/data/com.android.providers.telephony/databases/mmssms.db***"
 	},
 	{
-		"heading": "",
+		"heading": "Enable adb forwarding to use netcat for imaging",
 		"body": "`adb forward tcp:8888 tcp:8888`",
 		"aside": "**Why?**\n*While the forensic investigator can use a target drive as the destination for an image, they can also capture the required image using the adb tool and a network connection. We choose the latter in this case.*"
 	},
 	{
-		"heading": "",
+		"heading": "Image android device via netcat command",
 		"body": "`dd if=/dev/mtdblock1 bs=512 conv=notrunc,noerror,sync | nc -l -p 8888`\n`nc 127.0.0.1 8888 > droid_image.img` on the examiner's terminal, not adb.",
 		"aside": "**Why?**\n*Using the dd command and piping it to netcat (nc) allows us to capture a raw format image file from the /data mount point. Piping it to netcat allows us to stream that RAW file to the forensics examiners workstation for further storage and further analysis.*"
 	},
 	{
-		"heading": "",
+		"heading": "Create a Hash of the image",
 		"body": "`md5sum droid_image.img > image_hash.txt`\nThen type `cat image_hash.txt` to view the hash.",
 		"aside": "**Why?**\n*Using the md5 command allows the investigator to verify the integrity of the captured image file and prove that it has not been altered in any way.*"
 	},
 	{
-		"heading": "",
+		"heading": "Use Autopsy on Windows for analysis",
 		"fullWidth": "Use Autopsy on Windows for analysis (windows autopsy does ext4 filesystems, linux version does not).\n\n* Create New Case\n![](/img/image4.png)\n* Import image file\n![](/img/image5.png)\n* Compare md5 hashes. *Right click and open the image in a new tab to see the small text*\n![](/img/image6.png)\n* Locate text file with text messaging data\n* Find the incriminating data if present.\n\n**Why?**\n*The initial capture using dd and netcat was on a linux forensics workstation, however, the forensic software Autopsy on Linux does not support the ext4 file format that the suspects device was formatted as. Due to this, the image file must be analyzed on the Windows version of Autopsy. Using Autopsy allows us to mount the image and search for text messages within the specified timeframe to determine whether or not the suspect was texting at the time of the incident. Autopsy automatically extracts the messages from the sms/mms database for analysis.*\n\n## So is he guilty?\nBased on the text messages, is the person guilty of texting while driving?\nType `1` for yes, and `2` for no."
 	},
 	{
@@ -166,12 +162,12 @@ var Terminal = React.createClass({
 	getInitialState: function() {
 		var commands = {
 			"1": function () {
-				if (term_step === 8) {
+				if (term_step === 7) {
 					this.echo('Congratulations! You are right. Thanks for following along with this lab.');
 				}
 			},
 			"2": function () {
-				if (term_step === 8) {
+				if (term_step === 7) {
 					this.echo('Are you sure? Read the messages again.');
 				}
 			},
@@ -185,12 +181,12 @@ var Terminal = React.createClass({
 			},
 			md5sum: function () {
 				//TODO
-					if (term_step === 7) term_step = 8;
+					if (term_step === 6) term_step = 7;
 					this.set_command('');
 
 			},
 			dd: function () {
-				if (term_step === 6) {
+				if (term_step === 5) {
 					for (var i=0; i<arguments.length; i++) {this.echo(arguments[i])}
 					if (arguments[0] === 'if=/dev/mtdblock1' && arguments[1] === 'bs=512' && arguments[2] === 'conv=notrunc,noerror,sync' && arguments[3] === '|' && arguments[4] === 'nc' && arguments[5] === '-l' && arguments[6] === '-p' && arguments[7] === 8888) {
 						this.clear()
@@ -206,9 +202,9 @@ var Terminal = React.createClass({
 				}
 			},
 			nc: function () {
-				if (term_step === 6) {
+				if (term_step === 5) {
 					if (arguments[0] === '127.0.0.1' && arguments[1] === 8888 && arguments[2] === '>' && arguments[3] === 'droid_image.img') {
-						term_step = 7;
+						term_step = 6;
 						this.set_command('');
 					}
 				}
@@ -250,22 +246,28 @@ var Terminal = React.createClass({
 			},
 			adb: function (shell) {
 				if (arguments.length == 1) {
-					if(listDir(dir) == "/opt/AndroidSDK/platform-tools/" && term_step === 3){
+					if(listDir(dir) == "/opt/AndroidSDK/platform-tools/" && term_step === 2){
 						this.echo("TUTORIAL: Click [NEXT STEP].");
-						term_step = 4;
+						term_step = 3;
 						dir = adb;
 						this.set_prompt('root > ');
 						this.set_command("");
 					}
 				} if (arguments.length === 3) {
-					if (arguments[0] === 'forward' && arguments[1] === 'tcp:8888' && arguments[2] === 'tcp:8888' && term_step === 5) {
-						term_step = 6;
+					if (arguments[0] === 'forward' && arguments[1] === 'tcp:8888' && arguments[2] === 'tcp:8888' && term_step === 4) {
+						term_step = 5;
 						this.set_command('');
 					}
 				}
 			},
-			cd: function(next_dir) {
-				var list = parseDir(next_dir);
+			cd: function() {
+				var res = '';
+				if (arguments.length > 1) {
+					for (var i=0; i<arguments.length; i++) {
+						res += arguments[i];
+					}
+				}
+				var list = parseDir(res);
 				var td = dir;
 
 				for(var i=0; i<list.length; i++) {
@@ -287,9 +289,9 @@ var Terminal = React.createClass({
 				console.log(term_step);
 			},
 			mount: function () {
-				if (term_step === 4) {
+				if (term_step === 3) {
 					console.log("Changing step.");
-					term_step = 5;
+					term_step = 4;
 					this.echo("rootfs / rootfs ro,seclabel,relatime 0 0\ntmpfs /dev tmpfs rw,seclabe,nosuid,relatime,mode=755 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,relatime,mode=600 0 0\nproc /proc proc rw,relatime 0 0\nsysfs /sys sysfs rw,seclabel,relatime 0 0\nselinuxfs /sys/fs/selinux selinuxfs rw,relatime 0 0\ndebugfs /sys/kernel/debug debugfs rw,relatime 0 0\nnone /acct cgroup rw,relatime,cpuacct 0 0\nnone /sys/fs/cgroup tmpfs rw,seclabel,relatime,mode=750,gid=1000 0 0\ntmpfs /mnt/asec tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0\ntmpfs /mnt/obb tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0\nnone /dev/cpuctl cgroup rw,relatime,cpu 0 0\n/dev/block/mtdblock0 /system ext4 ro,seclabel,relatime,data=ordered 0 0\n/dev/block/mtdblock1 /data ext4 rw,seclabel,nosuid,nodev,noatime,nomblk_io_submit,data=ordered 0 0\n/dev/block/mtdblock2 /cache ext4 rw,seclabel,nosuid,nodev,noatime,data=ordered 0 0\n/dev/block/void/179:0 /mnt/media_rw/sdcard vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=midex,utf8,errors=remound-ro 0 0\n/dev/fuse /storage/sdcard fuse rw,nosuid,nodev,noexec,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0");
 					this.set_command("");
 				}
@@ -316,7 +318,7 @@ var Terminal = React.createClass({
 
 							// Update step
 							if (term_step === 1)
-								term_step = 3;
+								term_step = 2;
 							this.set_command("");
 						}
 						else {
